@@ -4,48 +4,61 @@ using Client.Sensors;
 using System.Net;
 using System.IO;
 using System.Collections;
-
+using System.Threading.Tasks;
+using MQTTnet.Client.Options;
+using MQTTnet.Extensions.ManagedClient;
+using MQTTnet;
+using MQTTnet.Client;
+using CsQuery.Engine.PseudoClassSelectors;
+using System.Threading;
+using Client.Model;
 
 namespace Client
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
 
-            // init sensors
-            List<SensorInterface> sensors = new List<SensorInterface>();
-            sensors.Add(new VirtualSpeedSensor());
-            sensors.Add(new BatteryVirtualSensor());
-            sensors.Add(new PositionVirtualSensor());
+            // topic
+            const string topic = "scooters/123";
+
+            await Mqtt.MqttConnection();
+
+            
 
             while (true)
             {
-                foreach (SensorInterface sensor in sensors)
+                foreach (SensorInterface sensor in Scotters1.CreateScouters())
                 {
-                    HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create("http://b1df610c81ab.ngrok.io/scooters/1");
-                    httpWebRequest.ContentType = "text/json";
-                    httpWebRequest.Method = "POST";
+                    //HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create("http://b1df610c81ab.ngrok.io/scooters/1");
+                    //httpWebRequest.ContentType = "text/json";
+                    //httpWebRequest.Method = "POST";
 
-                    using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
-                    {
-                        streamWriter.Write(sensor.toJson());
-                    }
+                    //using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+                    //{
+                    //    streamWriter.Write(sensor.toJson());
+                    //}
 
-                    var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+                    //var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();   
 
-                    Console.Out.WriteLine(httpResponse.StatusCode);
+                    //Console.Out.WriteLine(httpResponse.StatusCode);
 
-                    httpResponse.Close();
+                    //httpResponse.Close();
 
-                    System.Threading.Thread.Sleep(1000);
+                    //System.Threading.Thread.Sleep(1000);
+
+                    // MTTQ PART
+
+                    await Mqtt.SendMessage(topic, sensor.toJson());
+
+                    Thread.Sleep(1000);
 
                 }
-
-            }
-
+            }   
         }
 
-    }
 
+
+    }
 }

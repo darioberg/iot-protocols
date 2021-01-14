@@ -7,7 +7,7 @@ namespace Client.Sensors
 {
     public interface PositionSensorInterface
     {
-        float GetLatitudine();
-        float GetLongitudine();
+        string GetLatitudine();
+        
     }
 }
