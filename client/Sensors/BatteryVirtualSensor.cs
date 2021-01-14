@@ -24,8 +24,8 @@ namespace Client.Sensors
 
         public string toJson()
         {
-            Console.WriteLine("\"charge\": " + GetCharge());
-            return "{\"charge\": " + GetCharge() + "}";
+            Console.WriteLine("\"battery\": " + GetCharge());
+            return "{\"battery\": " + GetCharge() + "}";
         }
     }
 }

@@ -8,86 +8,57 @@ using System.Threading.Tasks;
 using MQTTnet.Client.Options;
 using MQTTnet.Extensions.ManagedClient;
 using MQTTnet;
-using CsQuery.Engine.PseudoClassSelectors;
 using MQTTnet.Client;
+using CsQuery.Engine.PseudoClassSelectors;
+using System.Threading;
+using Client.Model;
 
 namespace Client
 {
     class Program
     {
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
 
-            // init sensors
-            List<SensorInterface> sensors = new List<SensorInterface>();
-            sensors.Add(new VirtualSpeedSensor());
-            sensors.Add(new BatteryVirtualSensor());
-            sensors.Add(new PositionVirtualSensor());
+            // topic
+            const string topic = "scooters/123";
+
+            await Mqtt.MqttConnection();
+
+            
 
             while (true)
             {
-                foreach (SensorInterface sensor in sensors)
+                foreach (SensorInterface sensor in Scotters1.CreateScouters())
                 {
                     //HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create("http://b1df610c81ab.ngrok.io/scooters/1");
                     //httpWebRequest.ContentType = "text/json";
                     //httpWebRequest.Method = "POST";
 
-                    using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
-                    {
-                        streamWriter.Write(sensor.toJson());
-                    }
+                    //using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
+                    //{
+                    //    streamWriter.Write(sensor.toJson());
+                    //}
 
-                    var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();
+                    //var httpResponse = (HttpWebResponse)httpWebRequest.GetResponse();   
 
-                    Console.Out.WriteLine(httpResponse.StatusCode);
+                    //Console.Out.WriteLine(httpResponse.StatusCode);
 
-                    httpResponse.Close();
+                    //httpResponse.Close();
 
-                    System.Threading.Thread.Sleep(1000);
+                    //System.Threading.Thread.Sleep(1000);
+
+                    // MTTQ PART
+
+                    await Mqtt.SendMessage(topic, sensor.toJson());
+
+                    Thread.Sleep(1000);
 
                 }
-
-            }
-
+            }   
         }
 
-        public static async Task ConnectAsync()
-        {
-            string clientId = Guid.NewGuid().ToString();
-            string mqqtURI = "test.mosquitto.org";
-            int mqttPort = 1883;
-            bool mqttSecure = false;
 
-            var messageBuilder = new MqttClientOptionsBuilder()
-                .WithClientId(clientId)
-                .WithTcpServer(mqqtURI, mqttPort)
-                .WithCleanSession();
-
-            var options = mqttSecure
-                ? messageBuilder
-                .WithTls()
-                .Build()
-                : messageBuilder
-                .Build();
-
-            var managedOptions = new ManagedMqttClientOptionsBuilder()
-                .WithAutoReconnectDelay(TimeSpan.FromSeconds(5))
-                .WithClientOptions(options)
-                .Build();
-
-            var client = new MqttFactory().CreateManagedMqttClient();
-
-            await client.StartAsync(managedOptions);
-        }
-
-        public static async void PublishAsync(IMqttClient mqttClient)
-        {
-            var message = new MqttApplicationMessageBuilder()
-                .WithTopic("iot2021/es2/dariobergamasco")
-                .WithPayload();
-        }
-            
 
     }
-
 }
