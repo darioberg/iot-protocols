@@ -22,14 +22,20 @@ namespace Client
 
             // topic
             const string topic = "scooters/123";
-
-            await Mqtt.MqttConnection();
-
+            try
+            {
+                await Mqtt.MqttConnection();  // connessione al broker
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                Console.WriteLine("porcodio");
+            }
             
-
             while (true)
             {
-                foreach (SensorInterface sensor in Scotters1.CreateScouters())
+                foreach (SensorInterface sensor in Scotters1.CreateScouters()) //abbiamo creato scouters1 tramite una classe cosi si hanno i sensori
+                                                                               // ma se ne possono implementare altri:
                 {
                     //HttpWebRequest httpWebRequest = (HttpWebRequest)WebRequest.Create("http://b1df610c81ab.ngrok.io/scooters/1");
                     //httpWebRequest.ContentType = "text/json";
@@ -50,9 +56,9 @@ namespace Client
 
                     // MTTQ PART
 
-                    await Mqtt.SendMessage(topic, sensor.toJson());
+                    await Mqtt.SendMessage(topic, sensor.toJson()); // invio del messaggio 
 
-                    Thread.Sleep(1000);
+                    Thread.Sleep(1000); // aspetta un secondo
 
                 }
             }   
